@@ -8,9 +8,14 @@ on:
     - cron: '0 14 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: humanlog-tracking
+  cancel-in-progress: false
+
 jobs:
   run-humanlog:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Descargar repositorio
@@ -34,5 +39,6 @@ jobs:
           HUMANLOG_USER: ${{ secrets.HUMANLOG_USER }}
           HUMANLOG_PASS: ${{ secrets.HUMANLOG_PASS }}
           GOOGLE_CREDS: ${{ secrets.GOOGLE_CREDS }}
+          SHEET_URL: ${{ vars.SHEET_URL }}
         run: |
           python humanlog.py
