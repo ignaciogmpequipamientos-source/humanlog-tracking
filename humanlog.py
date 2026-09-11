@@ -20,7 +20,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
@@ -166,6 +166,27 @@ def wait_for_consult_page(driver, wait):
         ) from exc
 
 
+def click_when_ready(driver, locator, label, timeout_seconds=45):
+    deadline = time.time() + timeout_seconds
+    last_error = None
+
+    while time.time() < deadline:
+        try:
+            element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(locator))
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+            element.click()
+            return
+        except StaleElementReferenceException as exc:
+            last_error = exc
+            time.sleep(1)
+        except TimeoutException as exc:
+            last_error = exc
+            time.sleep(1)
+
+    save_debug_artifacts(driver, f"boton_{label}_no_disponible")
+    raise RuntimeError(f"No se pudo hacer click en {label}.") from last_error
+
+
 def download_csv():
     fecha_desde, fecha_hasta = date_range()
     humanlog_user = required_env("HUMANLOG_USER")
@@ -192,11 +213,13 @@ def download_csv():
         campo_hasta.clear()
         campo_hasta.send_keys(fecha_hasta)
 
-        wait.until(
-            EC.element_to_be_clickable((By.XPATH, "//input[@value='Actualiza Consulta']"))
-        ).click()
+        click_when_ready(
+            driver,
+            (By.XPATH, "//input[@value='Actualiza Consulta']"),
+            "Actualiza Consulta",
+        )
 
-        wait.until(EC.element_to_be_clickable((By.ID, "btnGeneraExcel"))).click()
+        click_when_ready(driver, (By.ID, "btnGeneraExcel"), "Genera Excel")
         csv_path = wait_for_csv()
         print(f"CSV descargado: {csv_path}")
         return csv_path
