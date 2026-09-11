@@ -33,6 +33,7 @@ DEFAULT_SHEET_URL = (
     "1qE4-tQ6BfCPkkHmAUQZSy9pwAkBa4w3BlNPsVdCixTw/edit?usp=sharing"
 )
 SHEET_URL = os.getenv("SHEET_URL") or DEFAULT_SHEET_URL
+RETENTION_DAYS = int(os.getenv("RETENTION_DAYS", "20"))
 OUTPUT_COLUMNS = [
     "pedido",
     "destinatario",
@@ -288,8 +289,20 @@ def read_historical(sheet):
 def build_final_data(new_shipments, historical):
     df = pd.concat([historical, new_shipments], ignore_index=True)
     df = normalize_shipments(df)
+    before_retention = len(df)
+    df = keep_recent_shipments(df)
+    removed = before_retention - len(df)
+    if removed:
+        print(f"Registros descartados por antiguedad: {removed}")
     print(f"Registros finales: {len(df)}")
     return df
+
+
+def keep_recent_shipments(df):
+    df = df.copy()
+    cutoff = (datetime.today() - timedelta(days=RETENTION_DAYS)).date()
+    loaded_at = pd.to_datetime(df["fecha carga"], errors="coerce").dt.date
+    return df[loaded_at >= cutoff]
 
 
 def format_sheet(sheet):
