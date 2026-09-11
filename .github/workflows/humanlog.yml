@@ -1,6 +1,6 @@
 name: Human Log Tracking
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: tru
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 on:
   schedule:
     - cron: '0 13 * * *'
@@ -42,3 +42,11 @@ jobs:
           SHEET_URL: ${{ vars.SHEET_URL }}
         run: |
           python humanlog.py
+
+      - name: Subir debug si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: humanlog-debug
+          path: debug/
+          if-no-files-found: ignore

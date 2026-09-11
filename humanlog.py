@@ -20,12 +20,14 @@ from oauth2client.service_account import ServiceAccountCredentials
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 
 DOWNLOAD_DIR = Path.cwd() / "downloads"
+DEBUG_DIR = Path.cwd() / "debug"
 DEFAULT_SHEET_URL = (
     "https://docs.google.com/spreadsheets/d/"
     "1qE4-tQ6BfCPkkHmAUQZSy9pwAkBa4w3BlNPsVdCixTw/edit?usp=sharing"
@@ -74,6 +76,8 @@ def build_driver():
 
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
+    options.add_argument("--window-size=1365,900")
+    options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
@@ -124,6 +128,43 @@ def wait_for_csv(timeout_seconds=60):
     raise RuntimeError("No se encontro un CSV descargado nuevo dentro del tiempo esperado.")
 
 
+def save_debug_artifacts(driver, label):
+    DEBUG_DIR.mkdir(exist_ok=True)
+    safe_label = label.replace(" ", "_").lower()
+    screenshot_path = DEBUG_DIR / f"{safe_label}.png"
+    html_path = DEBUG_DIR / f"{safe_label}.html"
+
+    try:
+        driver.save_screenshot(str(screenshot_path))
+    except Exception as exc:
+        print(f"No se pudo guardar screenshot de debug: {exc}")
+
+    try:
+        html_path.write_text(driver.page_source, encoding="utf-8")
+    except Exception as exc:
+        print(f"No se pudo guardar HTML de debug: {exc}")
+
+    print(f"URL actual al fallar: {driver.current_url}")
+    print(f"Titulo actual al fallar: {driver.title}")
+    print(f"Debug guardado en: {DEBUG_DIR}")
+
+
+def wait_for_consult_page(driver, wait):
+    try:
+        return wait.until(EC.presence_of_element_located((By.NAME, "fechadesde")))
+    except TimeoutException as exc:
+        save_debug_artifacts(driver, "consulta_no_disponible")
+        if driver.find_elements(By.NAME, "usu") or "BPlogin.php" in driver.current_url:
+            raise RuntimeError(
+                "Human Log no permitio entrar a consultas. Revisar HUMANLOG_USER/HUMANLOG_PASS "
+                "o si el sitio bloquea el login desde GitHub Actions."
+            ) from exc
+        raise RuntimeError(
+            "No aparecio el campo fechadesde en la pantalla de consultas. "
+            "Se guardaron artefactos de debug para revisar la pagina recibida."
+        ) from exc
+
+
 def download_csv():
     fecha_desde, fecha_hasta = date_range()
     humanlog_user = required_env("HUMANLOG_USER")
@@ -138,10 +179,11 @@ def download_csv():
         wait.until(EC.presence_of_element_located((By.NAME, "usu"))).send_keys(humanlog_user)
         driver.find_element(By.NAME, "pass").send_keys(humanlog_pass)
         driver.find_element(By.ID, "registrar").click()
+        time.sleep(2)
 
         driver.get("https://human-log.com/BPcon.php")
 
-        campo_desde = wait.until(EC.presence_of_element_located((By.NAME, "fechadesde")))
+        campo_desde = wait_for_consult_page(driver, wait)
         campo_desde.clear()
         campo_desde.send_keys(fecha_desde)
 
