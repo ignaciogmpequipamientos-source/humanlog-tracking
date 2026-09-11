@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Human Log Tracking</title>
+    <meta
+      name="description"
+      content="Consulta de guia por numero de pedido."
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="brand-mark" aria-hidden="true">
+          <span>HL</span>
+        </div>
+
+        <div class="hero-copy">
+          <p class="eyebrow">Seguimiento de envios</p>
+          <h1 id="page-title">Consulta tu guia</h1>
+          <p class="intro">
+            Ingresa tu numero de pedido y encontra la guia asociada al envio.
+          </p>
+        </div>
+      </section>
+
+      <section class="lookup-panel" aria-label="Buscar guia por pedido">
+        <form id="tracking-form" class="search-form">
+          <label for="pedido">Numero de pedido</label>
+          <div class="search-row">
+            <input
+              id="pedido"
+              name="pedido"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="Ej: 117100"
+              required
+            />
+            <button type="submit">
+              <span>Buscar</span>
+            </button>
+          </div>
+        </form>
+
+        <div id="result" class="result" aria-live="polite"></div>
+      </section>
+
+      <section class="trust-band" aria-label="Informacion del servicio">
+        <div>
+          <strong>Actualizacion diaria</strong>
+          <span>El sistema consulta la base actualizada automaticamente.</span>
+        </div>
+        <div>
+          <strong>Datos protegidos</strong>
+          <span>La consulta devuelve solo la guia del pedido solicitado.</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

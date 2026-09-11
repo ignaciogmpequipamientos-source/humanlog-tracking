@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "functions": {
+    "api/search.py": {
+      "maxDuration": 10
+    }
+  }
+}

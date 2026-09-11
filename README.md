@@ -39,3 +39,17 @@ Configurar estos secrets en el repositorio:
 Opcionalmente se puede configurar la variable `SHEET_URL` si se quiere cambiar la planilla destino sin editar el codigo.
 
 Opcionalmente se puede configurar la variable `RETENTION_DAYS` si se quiere cambiar la retencion por defecto de 20 dias.
+
+## Web de consulta
+
+El repo incluye una web para que un cliente ingrese su numero de pedido y vea la guia correspondiente.
+
+Para desplegarla en Vercel:
+
+1. Importar este repositorio desde Vercel.
+2. Configurar estas environment variables:
+
+- `GOOGLE_CREDS`
+- `SHEET_URL`
+
+`SHEET_URL` es opcional si se usa la planilla por defecto del script.
