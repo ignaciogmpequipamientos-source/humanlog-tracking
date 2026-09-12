@@ -22,6 +22,7 @@ STATIC_ROUTES = {
     "/": "index.html",
     "/index.html": "index.html",
     "/app.js": "app.js",
+    "/logo-gmp.png": "assets/logo-gmp.png",
     "/styles.css": "styles.css",
 }
 
