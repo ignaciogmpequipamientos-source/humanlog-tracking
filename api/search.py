@@ -1,6 +1,8 @@
 from http.server import BaseHTTPRequestHandler
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 import json
+import mimetypes
 import os
 
 import gspread
@@ -15,6 +17,13 @@ SCOPE = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive",
 ]
+ROOT_DIR = Path(__file__).resolve().parents[1]
+STATIC_ROUTES = {
+    "/": "index.html",
+    "/index.html": "index.html",
+    "/app.js": "app.js",
+    "/styles.css": "styles.css",
+}
 
 
 def json_response(handler, status, payload):
@@ -25,6 +34,30 @@ def json_response(handler, status, payload):
     handler.send_header("Content-Length", str(len(body)))
     handler.end_headers()
     handler.wfile.write(body)
+
+
+def static_response(handler, path):
+    file_name = STATIC_ROUTES.get(path)
+    if not file_name:
+        return False
+
+    file_path = ROOT_DIR / file_name
+    if not file_path.exists():
+        json_response(handler, 404, {"error": "Archivo no encontrado."})
+        return True
+
+    body = file_path.read_bytes()
+    content_type = mimetypes.guess_type(file_path.name)[0] or "application/octet-stream"
+    if content_type.startswith("text/") or content_type == "application/javascript":
+        content_type = f"{content_type}; charset=utf-8"
+
+    handler.send_response(200)
+    handler.send_header("Content-Type", content_type)
+    handler.send_header("Cache-Control", "no-store")
+    handler.send_header("Content-Length", str(len(body)))
+    handler.end_headers()
+    handler.wfile.write(body)
+    return True
 
 
 def normalize(value):
@@ -66,7 +99,11 @@ def find_order(pedido):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        query = parse_qs(urlparse(self.path).query)
+        parsed_url = urlparse(self.path)
+        if static_response(self, parsed_url.path):
+            return
+
+        query = parse_qs(parsed_url.query)
         pedido = normalize(query.get("pedido", [""])[0])
 
         if not pedido:

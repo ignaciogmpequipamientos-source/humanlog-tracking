@@ -6,3 +6,6 @@ dependencies = [
     "gspread",
     "oauth2client",
 ]
+
+[tool.vercel]
+entrypoint = "api.search:handler"
