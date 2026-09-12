@@ -1,2 +1,11 @@
+[project]
+name = "humanlog-tracking"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "gspread",
+    "oauth2client",
+]
+
 [tool.vercel]
 entrypoint = "api.search:handler"
