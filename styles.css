@@ -223,6 +223,11 @@ button:disabled {
   text-underline-offset: 3px;
 }
 
+.tracking-notice strong {
+  color: var(--ink);
+  font-weight: 900;
+}
+
 .trust-band {
   display: grid;
   grid-template-columns: 1fr;
