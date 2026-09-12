@@ -206,6 +206,23 @@ button:disabled {
   line-height: 1.45;
 }
 
+.tracking-notice {
+  padding: 14px 16px;
+  border: 1px solid rgba(23, 163, 152, 0.28);
+  border-radius: 8px;
+  color: #21443f;
+  background: rgba(23, 163, 152, 0.08);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.tracking-notice a {
+  color: var(--brand-dark);
+  font-weight: 850;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
 .trust-band {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
