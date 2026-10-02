@@ -2,19 +2,22 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Human Log Tracking</title>
     <meta
       name="description"
       content="Consulta de guia por numero de pedido."
     />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=20261002-2" />
   </head>
   <body>
     <main class="page-shell">
       <section class="hero" aria-labelledby="page-title">
         <div class="brand-mark">
-          <img src="/logo-gmp.png" alt="GMP" />
+          <img src="/assets/logo-gmp.png" alt="GMP" />
         </div>
 
         <div class="hero-copy">
@@ -34,9 +37,12 @@
               id="pedido"
               name="pedido"
               type="text"
-              inputmode="text"
+              inputmode="latin-prose"
               autocapitalize="characters"
+              autocorrect="off"
               autocomplete="off"
+              spellcheck="false"
+              pattern="[A-Za-z0-9-]+"
               placeholder="Ej: 117100 o AB117100"
               required
             />
@@ -77,6 +83,6 @@
       </section>
     </main>
 
-    <script src="/app.js"></script>
+    <script src="/app.js?v=20261002-2"></script>
   </body>
 </html>

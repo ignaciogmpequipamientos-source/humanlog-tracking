@@ -19,6 +19,7 @@
 
 body {
   min-height: 100vh;
+  min-height: 100svh;
   margin: 0;
   color: var(--ink);
   font-family:
@@ -38,6 +39,7 @@ input {
 .page-shell {
   width: min(1080px, calc(100% - 32px));
   min-height: 100vh;
+  min-height: 100svh;
   margin: 0 auto;
   padding: 42px 0;
   display: grid;
@@ -288,7 +290,9 @@ button:disabled {
 @media (max-width: 680px) {
   .page-shell {
     width: min(100% - 22px, 1080px);
-    padding: 28px 0;
+    min-height: auto;
+    padding: max(96px, calc(28px + env(safe-area-inset-top))) 0 28px;
+    align-content: start;
   }
 
   .hero {
